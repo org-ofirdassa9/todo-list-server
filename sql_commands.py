@@ -5,7 +5,7 @@ import User
 
 class Db_Commands:
     def __init__(self):
-        self.conn = pyodbc.connect(os.environ['SQL_CONN_STRING'])
+        self.conn = pyodbc.connect(f'DRIVER={os.environ["SQL_DRIVER"]};SERVER={os.environ["SQL_ADDR"]};DATABASE={os.environ["SQL_DB_NAME"]};UID={os.environ["SQL_USER"]};PWD={os.environ["SQL_PASS"]}')
         self.cursor = self.conn.cursor()
         
     def get_password(self, email):

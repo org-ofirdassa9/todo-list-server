@@ -1,29 +1,57 @@
 version: "3.9"
 services:
   mongo:
+    container_name: mongo
     image: "mongo:latest"
     ports: 
-    - 27017:27017
+      - 27017:27017
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASS}
     volumes:
-    - .\mongo\data:/data/db
+      - ./mongo/data:/data/db
   sql:
+    container_name: sql
     image: "mcr.microsoft.com/mssql/server:2019-latest"
     ports:
-    - 1433:1433
+      - 1433:1433
     environment:
       ACCEPT_EULA: Y
-      MSSQL_SA_PASSWORD: ${SQL_PASSWORD}
+      MSSQL_SA_PASSWORD: ${SQL_PASS}
       MSSQL_PID: Express
     volumes:
-    - .\sql\data:/var/opt/mssql/data
-    - .\sql\log:/var/opt/mssql/log
-    - .\sql\secrets:/var/opt/mssql/secrets
+      - ./sql/data:/var/opt/mssql/data
+      - ./sql/log:/var/opt/mssql/log
+      - ./sql/secrets:/var/opt/mssql/secrets
   redis:
+    container_name: redis
     image: "redis:latest"
     ports:
-    - 6379:6379
+      - 6379:6379
     volumes:
-      - .\redis:/data
+      - ./redis:/data
+  todo-list-server:
+    container_name: todo-list-server
+    depends_on:
+      - sql
+      - mongo
+      - redis
+    image: "ofirdassa/todo-list"
+    build: .
+    ports:
+      - 5000:8080
+    environment:
+      FLASK_APP: ${FLASK_APP}
+      FLASK_DEBUG: 'false'
+      SQL_USER: ${SQL_USER}
+      SQL_PASS: ${SQL_PASS}
+      SQL_ADDR: sql
+      SQL_DB_NAME: ${SQL_DB_NAME}
+      SQL_DRIVER: ${SQL_DRIVER}
+      MONGO_ADDR: mongo
+      MONGO_USER: ${MONGO_USER}
+      MONGO_PASS: ${MONGO_PASS}
+      MONGO_DB_NAME: ${MONGO_DB_NAME}
+      APP_SECRET_KEY: ${APP_SECRET_KEY}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      REDIS_URL: redis

@@ -40,4 +40,6 @@ def users(username):
 
 
 if __name__ == '__main__':
-    app.run()
+    from waitress import serve
+    from paste.translogger import TransLogger
+    serve(TransLogger(app, setup_console_handler=False))
