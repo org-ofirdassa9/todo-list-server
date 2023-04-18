@@ -1,0 +1,29 @@
+version: "3.9"
+services:
+  mongo:
+    image: "mongo:latest"
+    ports: 
+    - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+    volumes:
+    - .\mongo\data:/data/db
+  sql:
+    image: "mcr.microsoft.com/mssql/server:2019-latest"
+    ports:
+    - 1433:1433
+    environment:
+      ACCEPT_EULA: Y
+      MSSQL_SA_PASSWORD: ${SQL_PASSWORD}
+      MSSQL_PID: Express
+    volumes:
+    - .\sql\data:/var/opt/mssql/data
+    - .\sql\log:/var/opt/mssql/log
+    - .\sql\secrets:/var/opt/mssql/secrets
+  redis:
+    image: "redis:latest"
+    ports:
+    - 6379:6379
+    volumes:
+      - .\redis:/data
